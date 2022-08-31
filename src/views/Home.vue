@@ -189,7 +189,7 @@
         <table>
           <tr v-for="item in softData" v-bind:key="item">
             <td style="height: 190px;width:60%;">
-              <el-image :style="`height: 133px;width: 133px`" :src="item.image" fit="fit"></el-image>
+              <el-image :style="`height: 133px;width: 133px`" :src="item.image" fit="fill"></el-image>
             </td>
             <td style="height: 190px;width:40%;padding-left:30px;text-align:center">
               <a class="doc href" target="_blank" :href="item.href">{{item.title}}</a>
