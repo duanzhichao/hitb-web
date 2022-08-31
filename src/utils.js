@@ -39,25 +39,30 @@ const getStore = (key) => {
   return storage[key]
 }
 
-const tokenLogin = (that) => {
-  const token = getStore('login_token')
-  // verify_token
-  if (token) {
-    apiRequest(this, 'get', '/servers/verify_token', { token: token }).then(res => {
-      if (res.is_success === false) {
-        delStore('login_token')
-        delStore('login_username')
-        delStore('user_type')
-        delStore('user_admin')
-        that.$store.commit('clear_userObj')
-        return true
-      }
-      saveStore('login_username', res.user.username)
-      saveStore('user_type', res.user.type)
-      saveStore('user_admin', res.user.admin)
-      that.$store.commit('set_userObj', res)
-    })
-  }
+const tokenLogin = () => {
+  const promise = new Promise(function (resolve) {
+    const token = getStore('login_token')
+    // verify_token
+    if (token && token !== '') {
+      const requestObj = { that: this, method: 'get', url: '/servers/verify_token', data: { token: token } }
+      apiRequest(requestObj).then(res => {
+        if (res.is_success === false) {
+          delStore('login_token')
+          delStore('login_username')
+          delStore('user_type')
+          delStore('user_admin')
+          resolve(res)
+        }
+        saveStore('login_username', res.user.username)
+        saveStore('user_type', res.user.type)
+        saveStore('user_admin', res.user.admin)
+        resolve(res)
+      })
+    } else {
+      resolve(null)
+    }
+  })
+  return promise
 }
 
 const logOut = (that) => {
@@ -79,7 +84,7 @@ axios.interceptors.request.use(function (config) {
 
 
 // 
-const apiRequest = (that, method, url, data, timeout = 60000) => {
+const apiRequest = ({that, method, url, data, timeout = 60000}) => {
   url = `http://127.0.0.1:8080/api${url}`
   const promise = new Promise(function (resolve) {
     console.log(url)
